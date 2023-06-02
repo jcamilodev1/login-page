@@ -4,15 +4,15 @@
     <form @submit.prevent="register">
       <div class="form-group">
         <label for="name">Nombre</label>
-        <input type="text" id="name" v-model="name" required>
+        <input type="text" id="name" v-model="name" required />
       </div>
       <div class="form-group">
         <label for="email">Correo electrónico</label>
-        <input type="email" id="email" v-model="email" required>
+        <input type="email" id="email" v-model="email" required />
       </div>
       <div class="form-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" v-model="password" required>
+        <input type="password" id="password" v-model="password" required />
       </div>
       <button type="submit">Registrarse</button>
     </form>
@@ -21,8 +21,8 @@
 
 <script>
 import { ref } from 'vue'
-import { auth } from '../firebase'
 
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 export default {
   setup() {
     const name = ref('')
@@ -30,30 +30,26 @@ export default {
     const password = ref('')
 
     const register = async () => {
-      try {
-        // Crear una cuenta de usuario con correo electrónico y contraseña
-        const userCredential = await auth.createUserWithEmailAndPassword(email.value, password.value)
-        const user = userCredential.user
-
-        // Guardar el nombre del usuario en Firebase
-        await user.updateProfile({
-          displayName: name.value
+      const auth = getAuth()
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user
+          // ...
         })
-
-        // Redirigir al usuario después de registrarse exitosamente
-        // ...
-      } catch (error) {
-        console.error(error)
-      }
+        .catch((error) => {
+          const errorCode = error.code
+          const errorMessage = error.message
+        })
     }
 
     return {
       name,
       email,
       password,
-      register
+      register,
     }
-  }
+  },
 }
 </script>
 

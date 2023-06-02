@@ -1,53 +1,52 @@
 <template>
   <div class="container">
+  
     <h1>Iniciar sesión</h1>
     <form @submit.prevent="login">
       <div class="form-group">
         <label for="email">Correo electrónico</label>
-        <input type="email" id="email" v-model="email" required>
+        <input type="email" id="email" v-model="email" required />
       </div>
       <div class="form-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" v-model="password" required>
+        <input type="password" id="password" v-model="password" required />
       </div>
       <button type="submit">Iniciar sesión</button>
+      o
+      <router-link to="/register">Registrate</router-link>
     </form>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue'
-import { auth } from '../firebase'
-
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 export default {
   setup() {
     const email = ref('')
     const password = ref('')
 
     const login = async () => {
-      try {
-        // Iniciar sesión con correo electrónico y contraseña
-        const userCredential = await auth.signInWithEmailAndPassword(email.value, password.value)
-        const user = userCredential.user
-
-        // Guardar el nombre del usuario en Firebase
-        await user.updateProfile({
-          displayName: user.displayName || ''
+      const auth = getAuth()
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user
+          // ...
         })
-
-        // Redirigir al usuario después de iniciar sesión exitosamente
-        // ...
-      } catch (error) {
-        console.error(error)
-      }
+        .catch((error) => {
+          const errorCode = error.code
+          const errorMessage = error.message
+          // ..
+        })
     }
 
     return {
       email,
       password,
-      login
+      login,
     }
-  }
+  },
 }
 </script>
 
