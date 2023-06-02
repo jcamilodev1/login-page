@@ -1,7 +1,11 @@
 <template>
   <div class="container">
-    <h1>Iniciar sesión</h1>
-    <form @submit.prevent="login">
+    <h1>Registro</h1>
+    <form @submit.prevent="register">
+      <div class="form-group">
+        <label for="name">Nombre</label>
+        <input type="text" id="name" v-model="name" required>
+      </div>
       <div class="form-group">
         <label for="email">Correo electrónico</label>
         <input type="email" id="email" v-model="email" required>
@@ -10,7 +14,7 @@
         <label for="password">Contraseña</label>
         <input type="password" id="password" v-model="password" required>
       </div>
-      <button type="submit">Iniciar sesión</button>
+      <button type="submit">Registrarse</button>
     </form>
   </div>
 </template>
@@ -21,21 +25,22 @@ import { auth } from '../firebase'
 
 export default {
   setup() {
+    const name = ref('')
     const email = ref('')
     const password = ref('')
 
-    const login = async () => {
+    const register = async () => {
       try {
-        // Iniciar sesión con correo electrónico y contraseña
-        const userCredential = await auth.signInWithEmailAndPassword(email.value, password.value)
+        // Crear una cuenta de usuario con correo electrónico y contraseña
+        const userCredential = await auth.createUserWithEmailAndPassword(email.value, password.value)
         const user = userCredential.user
 
         // Guardar el nombre del usuario en Firebase
         await user.updateProfile({
-          displayName: user.displayName || ''
+          displayName: name.value
         })
 
-        // Redirigir al usuario después de iniciar sesión exitosamente
+        // Redirigir al usuario después de registrarse exitosamente
         // ...
       } catch (error) {
         console.error(error)
@@ -43,9 +48,10 @@ export default {
     }
 
     return {
+      name,
       email,
       password,
-      login
+      register
     }
   }
 }
