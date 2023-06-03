@@ -1,20 +1,70 @@
 import { defineStore } from 'pinia'
+import Swal from 'sweetalert2/dist/sweetalert2.js'
+import axios from 'axios'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    email: '',
-    password: ''
+    user: null,
+    token: null
   }),
   actions: {
-    setEmail(email) {
-      this.email = email
+    async register(user) {
+      try {
+        const res = await axios(
+          {
+            method: 'post',
+            url: 'https://node-auth-96qz.onrender.com/api/user/register',
+            headers: {},
+            data: {
+              ...user // This is the body part
+            },
+          },
+        )
+        const resDB = await res
+        this.token = resDB.data.data.token
+        this.user = resDB.data.data
+        localStorage.setItem('token', resDB.data.data.token)
+        
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: error,
+        })
+      }
     },
-    setPassword(password) {
-      this.password = password
+    async login(user) {
+      try {
+        const res = await axios(
+          {
+            method: 'post',
+            url: 'http://localhost:3001/api/user/login',
+            headers: {},
+            data: {
+              ...user
+            },
+          },
+        )
+        const resDB = await res
+        this.token = resDB.data.data.token
+        this.user = resDB.data.data
+        localStorage.setItem('token', resDB.data.data.token)
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: error,
+        })
+      }
     },
-    login() {
-      // Aquí puedes implementar la lógica para autenticar al usuario
-      console.log('Usuario autenticado:', this.email)
+    getToken(){
+      if(localStorage.getItem('token')){
+        this.token = localStorage.getItem('token')
+      }
+      else{
+        this.token = null
+      }
     }
-  }
+  },
+  persist: true,
 })

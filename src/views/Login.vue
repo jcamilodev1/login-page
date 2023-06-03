@@ -1,52 +1,39 @@
 <template>
-  <div class="container">
+  <section class="container">
   
     <h1>Iniciar sesión</h1>
     <form @submit.prevent="login">
       <div class="form-group">
         <label for="email">Correo electrónico</label>
-        <input type="email" id="email" v-model="email" required />
+        <input type="email" id="email" v-model="user.email" required />
       </div>
       <div class="form-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" v-model="password" required />
+        <input type="password" id="password" v-model="user.password" required />
       </div>
       <button type="submit">Iniciar sesión</button>
       o
       <router-link to="/register">Registrate</router-link>
     </form>
-  </div>
+  </section>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
-export default {
-  setup() {
-    const email = ref('')
-    const password = ref('')
+import { useAuthStore } from '../store/auth'
+import {useRouter} from 'vue-router'
+const router = useRouter()
 
-    const login = async () => {
-      const auth = getAuth()
-      signInWithEmailAndPassword(auth, email.value, password.value)
-        .then((userCredential) => {
-          // Signed in
-          const user = userCredential.user
-          // ...
-        })
-        .catch((error) => {
-          const errorCode = error.code
-          const errorMessage = error.message
-          // ..
-        })
-    }
+const store = useAuthStore()
 
-    return {
-      email,
-      password,
-      login,
-    }
-  },
+const user = ref({
+  email: '',
+  password: '',
+})
+
+const login = async () => {
+  store.login(user.value)
+  router.push('/')
 }
 </script>
 

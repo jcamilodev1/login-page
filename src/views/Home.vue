@@ -1,13 +1,16 @@
 <template>
   <div class="container">
-    <h1>Buscar Pokémon</h1>
-    <div class="search-container">
+    <section class="container__title">
+      <h1>Buscar Pokémon</h1>
+      <button @click="e => close()">Cerrar Sesión</button>
+    </section>
+    <!-- <section class="search-container">
       <input type="text" v-model="searchTerm" placeholder="Buscar" @keyup.enter="searchPokemon" />
-    </div>
+    </section> -->
 
     <h2>Todos los Pokémon</h2>
-    <div class="pokemon-grid">
-      <div v-for="pokemon in allPokemon" :key="pokemon.name" class="pokemon-card">
+    <section class="pokemon-grid">
+      <article v-for="pokemon in allPokemon" :key="pokemon.name" class="pokemon-card">
         <div class="pokemon-name">{{ pokemon.name }}</div>
         <div class="pokemon-image">
           <img :src="pokemon.sprites.front_shiny" alt="">
@@ -15,8 +18,8 @@
         <button class="add-favorite" @click="addFavorite(pokemon)" :disabled="isFavorite(pokemon)">
           Agregar a favoritos
         </button>
-      </div>
-    </div>
+      </article>
+    </section>
 
     <h2>Mis Favoritos</h2>
     <div class="pokemon-grid">
@@ -33,28 +36,27 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {useRouter} from 'vue-router'
 import axios from 'axios';
-import { getDatabase, ref as R, set, onValue } from "firebase/database";
 const searchTerm = ref('');
 const allPokemon = ref([]);
 const favorites = ref([]);
-const auth = ref(getAuth());
-
+const router = useRouter()
 
 const getPokemons = async () => {
-  const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=30');
-  const pokemons = response.data.results;
-  const pokemonPromises = pokemons.map(pokemon => axios.get(pokemon.url));
-  const pokemonResponses = await Promise.all(pokemonPromises);
-  allPokemon.value = pokemonResponses.map(response => response.data);
+  const response = await axios.get('http://localhost:3001/api/dashboard');
+  console.log(response.data.data)
+  allPokemon.value = await response.data.data.pokemones;
 };
 
 const searchPokemon = async () => {
   try {
+    if(!searchTerm.value.trim() == ''){
+      return
+    }
     const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${searchTerm.value.toLowerCase()}`);
     const pokemon = response.data;
-    allPokemon.value.push({ name: pokemon.name });
+    allPokemon.value.unshift(pokemon);
   } catch (error) {
     console.error(error);
   }
@@ -75,34 +77,18 @@ const isFavorite = (pokemon) => {
 };
 
 const saveFavorites = async () => {
-  const db = getDatabase();
-  set(R(db, 'pokemons/' + auth.value._currentUser.uid), {
-    pokemon : favorites.value
-  });
+  
 };
 
 const loadFavorites = async () => {
-  const db = getDatabase();
-  const starCountRef = ref(db, 'pokemons/' + auth.value._currentUser.uid);
-  onValue(starCountRef, (snapshot) => {
-    const data = snapshot.val();
-    // updateStarCount(postElement, data);
-    console.log(data)
-  });
-};
 
+};
+const close = () => {
+  localStorage.removeItem('token')
+  router.go(0)
+}
 onMounted(async () => {
   await getPokemons();
-
-  console.log(auth.value._currentUser.uid);
-
-  onAuthStateChanged(auth.value, (user) => {
-    if (user) {
-      loadFavorites();
-    } else {
-      favorites.value = [];
-    }
-  });
 });
 </script>
 
@@ -112,7 +98,12 @@ onMounted(async () => {
   margin: 0 auto;
   padding: 20px;
 }
-
+.container__title{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
 h1, h2 {
   margin-top: 0;
 }
