@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('auth', {
         const res = await axios(
           {
             method: 'post',
-            url: 'http://localhost:3001/api/user/login',
+            url: 'https://node-auth-96qz.onrender.com/api/user/login',
             headers: {},
             data: {
               ...user

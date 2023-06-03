@@ -34,8 +34,8 @@ const user = ref({
 })
 
 const register = async () => {
-  store.register(user.value)
-  router.push('/')
+  await store.register(user.value)
+  await router.push('/')
 }
 </script>
 

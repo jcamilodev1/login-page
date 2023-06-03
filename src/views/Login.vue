@@ -32,8 +32,8 @@ const user = ref({
 })
 
 const login = async () => {
-  store.login(user.value)
-  router.push('/')
+  await store.login(user.value)
+  await router.push('/')
 }
 </script>
 

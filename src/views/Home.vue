@@ -4,9 +4,9 @@
       <h1>Buscar Pokémon</h1>
       <button @click="e => close()">Cerrar Sesión</button>
     </section>
-    <!-- <section class="search-container">
+    <section class="search-container">
       <input type="text" v-model="searchTerm" placeholder="Buscar" @keyup.enter="searchPokemon" />
-    </section> -->
+    </section>
 
     <h2>Todos los Pokémon</h2>
     <section class="pokemon-grid">
@@ -44,7 +44,7 @@ const favorites = ref([]);
 const router = useRouter()
 
 const getPokemons = async () => {
-  const response = await axios.get('http://localhost:3001/api/dashboard');
+  const response = await axios.get('https://node-auth-96qz.onrender.com/api/dashboard');
   console.log(response.data.data)
   allPokemon.value = await response.data.data.pokemones;
 };
