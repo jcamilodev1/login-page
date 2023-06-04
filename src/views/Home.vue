@@ -51,7 +51,7 @@ const getPokemons = async () => {
 
 const searchPokemon = async () => {
   try {
-    if(!searchTerm.value.trim() == ''){
+    if(searchTerm.value.trim() == ''){
       return
     }
     const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${searchTerm.value.toLowerCase()}`);
